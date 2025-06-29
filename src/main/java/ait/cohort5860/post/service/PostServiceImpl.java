@@ -1,5 +1,6 @@
 package ait.cohort5860.post.service;
 
+import ait.cohort5860.post.dao.CommentRepository;
 import ait.cohort5860.post.dao.PostRepository;
 import ait.cohort5860.post.dao.TagRepository;
 import ait.cohort5860.post.dto.NewCommentDto;
@@ -20,12 +21,13 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-public class PostServiceImpl  implements PostService{
+public class PostServiceImpl  implements PostService {
 
     private final PostRepository postrepository;
     private final ModelMapper modelMapper;
     private final TagRepository tagRepository;
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
 
 
     @Override
@@ -34,15 +36,7 @@ public class PostServiceImpl  implements PostService{
         Post post = new Post(newPostDto.getTitle(),newPostDto.getContent(), author);
 
         //Handle tags
-        Set<String> tags = newPostDto.getTags();
-        if(tags !=null) {
-            for(String tagName : tags) {
-                Tag tag = tagRepository.findById(tagName).orElseGet(() -> tagRepository.save(new Tag(tagName)));
-                post.addTag(tag);
-            }
-        }
-        post = postrepository.save(post);
-        return modelMapper.map(post,PostDto.class);
+        return getPostDto(newPostDto, post, postrepository);
     }
 
     @Override
@@ -59,6 +53,10 @@ public class PostServiceImpl  implements PostService{
         post.setContent(updatedPostDto.getContent());
 
         post.getTags().clear();
+        return getPostDto(updatedPostDto, post, postRepository);
+    }
+
+    private PostDto getPostDto(NewPostDto updatedPostDto, Post post, PostRepository postRepository) {
         Set<String> tags = updatedPostDto.getTags();
         if(tags !=null) {
             for (String tagName : tags) {
@@ -67,7 +65,7 @@ public class PostServiceImpl  implements PostService{
             }
         }
         post = postRepository.save(post);
-         return modelMapper.map(post,PostDto.class);
+        return modelMapper.map(post,PostDto.class);
     }
 
     @Override
@@ -83,7 +81,6 @@ public class PostServiceImpl  implements PostService{
     public void addLike(Long id) {
         Post post = postRepository.findById(id).orElseThrow(PostNotFoundException::new);
         post.addLike();
-        postRepository.save(post);
     }
 
     @Override
@@ -91,26 +88,32 @@ public class PostServiceImpl  implements PostService{
     public PostDto addComment(Long id, String author, NewCommentDto newCommentDto) {
         Post post = postRepository.findById(id).orElseThrow(PostNotFoundException::new);
         Comment comment = new Comment(author, newCommentDto.getMessage());
+        comment.setPost(post);
         post.addComment(comment);
-        post =  postRepository.save(post);
+        commentRepository.save(comment);
         return modelMapper.map(post,PostDto.class);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PostDto> findPostsByAuthor(String author) {
-        List<Post> posts = postRepository.findByAuthor(author);
-        return posts.stream().map(post -> modelMapper.map(post,PostDto.class)).toList();
+        return postRepository.findByAuthorIgnoreCase(author)
+         .map(post -> modelMapper.map(post,PostDto.class)).toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PostDto> findPostByTags(List<String> tags) {
-        List<Post> posts = postRepository.findByTagsNameIn(tags);
-        return posts.stream().map(post -> modelMapper.map(post,PostDto.class)).toList();
+        return postRepository.findByTagsNameIn(tags)
+        .map(post -> modelMapper.map(post, PostDto.class))
+                .toList();
     }
 
     @Override
-    public List<PostDto> findPostsByPeriod(LocalDateTime dateFrom, LocalDateTime dateTo) {
-        List<Post> posts = postRepository.findByDateCreatedBetween(dateFrom, dateTo);
-        return posts.stream().map(post -> modelMapper.map(post,PostDto.class)).toList();
+    @Transactional(readOnly = true)
+    public List<PostDto> findPostsByPeriod(LocalDateTime  dateFrom, LocalDateTime  dateTo) {
+        return postRepository.findByDateCreatedBetween(dateFrom, dateTo)
+        .map(p -> modelMapper.map(p, PostDto.class))
+                .toList();
     }
 }

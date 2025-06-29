@@ -5,12 +5,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Stream;
 
 public interface PostRepository extends JpaRepository<Post,Long> {
 
-    List<Post> findByAuthor(String author);
+    Stream<Post> findByAuthorIgnoreCase(String author);
 
-    List<Post> findByTagsNameIn (List<String> tags);
+    Stream<Post> findByTagsNameIn (List<String> tags);
 
-    List<Post> findByDateCreatedBetween(LocalDateTime dateFrom, LocalDateTime dateTo);
+    Stream<Post> findByDateCreatedBetween(LocalDateTime from, LocalDateTime to);
 }
