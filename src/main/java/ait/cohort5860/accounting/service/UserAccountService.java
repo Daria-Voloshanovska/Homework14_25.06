@@ -1,22 +1,21 @@
 package ait.cohort5860.accounting.service;
 
-import ait.cohort5860.accounting.dto.UserRegistrationDto;
-import ait.cohort5860.accounting.dto.UserResponseDto;
-import ait.cohort5860.accounting.dto.UserUpdateDto;
+
+import ait.cohort5860.accounting.dto.RolesDto;
+import ait.cohort5860.accounting.dto.UserDto;
+import ait.cohort5860.accounting.dto.UserEditDto;
+import ait.cohort5860.accounting.dto.UserRegisterDto;
 
 public interface UserAccountService {
+    UserDto register(UserRegisterDto userRegisterDto);
 
-    UserResponseDto registerUser(UserRegistrationDto registrationDto);
+    UserDto getUser(String login);
 
-    UserResponseDto getUserDetails(String login);
+    UserDto removeUser(String login);
 
-    UserResponseDto updateUser(String login, UserUpdateDto userUpdateDto, String currentUserLogin);
+    UserDto updateUser(String login, UserEditDto userEditDto);
 
-    UserResponseDto deleteUser(String login, String currentUserLogin);
-
-    UserResponseDto addRole(String login, String role, String currentUserLogin);
-
-    UserResponseDto removeRole(String login, String role, String currentUserLogin);
+    RolesDto changeRolesList(String login, String role, boolean isAddRole);
 
     void changePassword(String login, String newPassword);
 }

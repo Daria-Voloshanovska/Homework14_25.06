@@ -6,12 +6,16 @@ spring:
     username: avnadmin
     password: ${AIVEN_PASS}
     driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
       ddl-auto: none
     show-sql: true
-
   liquibase:
-    enabled: true
-    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: false
+    change-log: classpath:db/changelog/changelog-master.yaml
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+logging:
+  level:
+    org.mongodb.driver: DEBUG
