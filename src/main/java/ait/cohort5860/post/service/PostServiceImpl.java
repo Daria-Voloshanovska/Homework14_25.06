@@ -10,7 +10,9 @@ import ait.cohort5860.post.dto.exeption.PostNotFoundException;
 import ait.cohort5860.post.model.Comment;
 import ait.cohort5860.post.model.Post;
 import ait.cohort5860.post.model.Tag;
+import ait.cohort5860.post.service.logging.PostLogger;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +49,7 @@ public class PostServiceImpl  implements PostService {
 
     @Override
     @Transactional
+    @PostLogger
     public PostDto updatePost(Long id, NewPostDto updatedPostDto) {
         Post post = postRepository.findById(id).orElseThrow(PostNotFoundException::new);
         post.setTitle(updatedPostDto.getTitle());
@@ -78,6 +81,7 @@ public class PostServiceImpl  implements PostService {
 
     @Override
     @Transactional
+    @PostLogger
     public void addLike(Long id) {
         Post post = postRepository.findById(id).orElseThrow(PostNotFoundException::new);
         post.addLike();
