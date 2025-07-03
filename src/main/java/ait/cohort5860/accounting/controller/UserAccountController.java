@@ -5,6 +5,7 @@ import ait.cohort5860.accounting.dto.UserRegisterDto;
 import ait.cohort5860.accounting.dto.UserDto;
 import ait.cohort5860.accounting.dto.UserEditDto;
 import ait.cohort5860.accounting.service.UserAccountService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
@@ -19,7 +20,7 @@ public class UserAccountController {
     private final UserAccountService userAccountService;
 
     @PostMapping("/register")
-    public UserDto register(@RequestBody UserRegisterDto userRegisterDto) {
+    public UserDto register(@RequestBody @Valid UserRegisterDto userRegisterDto) {
         return userAccountService.register(userRegisterDto);
     }
 
@@ -34,7 +35,7 @@ public class UserAccountController {
     }
 
     @PatchMapping("/user/{login}")
-    public UserDto updateUser(@PathVariable String login, @RequestBody UserEditDto userEditDto) {
+    public UserDto updateUser(@PathVariable String login, @RequestBody @Valid UserEditDto userEditDto) {
         return userAccountService.updateUser(login, userEditDto);
     }
 
